@@ -6,24 +6,37 @@ var width =
 var height = 400 - margin.top - margin.bottom;
 
 var svg = d3
-  .select(".chart")
-  .append("svg")
-  .attr("width", width + margin.left + margin.right)
-  .attr("height", width + margin.left + margin.right-600)
-  .style("border", "1px solid red")
-  .append("g")
-  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .select(".chart")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", width + margin.left + margin.right-600)
+    .style("border", "1px solid red")
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+const svg1 = d3
+    .select(".chart1")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom+1000)
+    .style("border", "1px solid red")
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .append("g")
+    .attr("class","graph3");
 
 var svg2 = d3
-  .select(".chart2")
-  .append("svg")
-  .attr("width", width + margin.left + margin.right)
-  .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .select(".chart2")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .style("border", "1px solid red")
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  
 
+
+var keys_resp=  ["philosophy", "people", "religion","general"];
 var keys = ["philosophy", "people", "religion","general"];
 var array_data_search = {
     philosophy: {
@@ -130,6 +143,7 @@ d3.json("data.json").then(function(data){
     var stackedSeries = stackGen(dataGraph);
     var z = d3.interpolateCool
     console.log("dataGraph", stackedSeries);
+    console.log("las Keys son :", keys)
 
     svg.append("g")
         .attr("class","graph1")
@@ -153,7 +167,6 @@ d3.json("data.json").then(function(data){
         .call(xAxis);
 });
 
-// d3.select(".chart").on("mouseover", updateAll)
 
 function updateAll() {
 
@@ -186,6 +199,7 @@ function updateAll() {
     .transition()
     .duration(2000)
     .attr("transform", "rotate(90)")
+    .attr("")
 
 
     d3.select(".chart")
@@ -201,13 +215,18 @@ function updateAll() {
     .data(stackedSeries)
     .transition()
     .duration(2000)
-    .attr("d", areaGen1);
+    .attr("d", areaGen1)
+    .attr("fill", (d) => colorScale[d.key])
+    .end();
 
     d3.select(".graph1")
     .transition()
     .duration(2000)
     .attr("transform", "translate(210,0)")
+
+    
 }
+
 function update(){
     d3.select(".chart")
     .selectAll("svg")
@@ -218,8 +237,68 @@ function update(){
         .style("margin-top", "300px")
         .style("margin-bot", "300px");
 
-    
 }
 
 
+function UpdateG2(key){
+    alert("valor ingresado directamente: " + key)
+    if (key === "" || key === undefined){
+        key = 0
+    }
+    if (key >= 4){
+        alert("Ingrese solo valores del 0 al 3")
+        return
+    }
+    console.log("key es :",key)
 
+    var xScale = d3.scaleLinear()
+                    .domain([dataGraph[0].year, dataGraph[dataGraph.length-1].year])
+                    .range([0, width]);
+
+    var yScale = d3.scaleLinear()
+                    .domain([0, maxTotal])
+                    .range([height-150, 0]);
+    
+    var areaGen = d3.area()
+                    .y((d) => xScale(d.data.year))
+                    .x0((d) => yScale(d[0]))
+                    .x1((d) => yScale(d[1])).curve(d3.curveCatmullRom.alpha(0.5));
+
+    var stackGen = d3.stack()
+                    .keys([keys[key]])
+                    .offset(d3.stackOffsetSilhouette)
+                    .order(d3.stackOrderNone);
+    var stackedSeries = stackGen(dataGraph);
+    
+    var z = d3.interpolateCool
+
+    d3.select(".chart")
+    .transition()
+    .duration(2000)
+    .style("text-align", "center")
+
+    d3.select(".AxisX")
+    .transition()
+    .duration(2000)
+    .attr("transform", "rotate(90)")
+    .attr("")
+
+    d3.select(".chart")
+    .selectAll("svg")
+    .transition()
+    .duration(2000)
+    .attr("width",height+150)
+    .attr("height",width+50);
+
+    graf = d3.select(".chart")
+    .selectAll("svg")
+    .selectAll("path")
+    .data(stackedSeries);
+    graf
+    .transition()
+    .duration(2000)
+    .attr("d", areaGen)
+    .attr("fill", (d) => colorScale[d.key]);
+    graf
+    .exit().remove();
+}
