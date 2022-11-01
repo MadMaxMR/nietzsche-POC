@@ -241,7 +241,6 @@ function update(){
 
 
 function UpdateG2(key){
-    alert("valor ingresado directamente: " + key)
     if (key === "" || key === undefined){
         key = 0
     }
