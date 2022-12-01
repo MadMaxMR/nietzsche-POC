@@ -14,11 +14,12 @@ var svg = d3
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+//bar chart
 const svg1 = d3
     .select(".chart1")
     .append("svg")
     .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom+1000)
+    .attr("height", height + margin.top + margin.bottom)
     .style("border", "1px solid red")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -142,8 +143,9 @@ d3.json("data.json").then(function(data){
                     .order(d3.stackOrderNone);
     var stackedSeries = stackGen(dataGraph);
     var z = d3.interpolateCool
-    console.log("dataGraph", stackedSeries);
-    console.log("las Keys son :", keys)
+    console.log("dataGraph", dataGraph);
+    console.log("data StackedSeries", stackedSeries);
+    console.log("las Keys son :", keys);
 
     svg.append("g")
         .attr("class","graph1")
@@ -165,8 +167,11 @@ d3.json("data.json").then(function(data){
         .attr("transform", "translate(0,0)")
         .attr("class", "AxisX")
         .call(xAxis);
+
+BarChart();
 });
 
+console.log("data graph",dataGraph )
 
 function updateAll() {
 
@@ -227,28 +232,7 @@ function updateAll() {
     
 }
 
-function update(){
-    d3.select(".chart")
-    .selectAll("svg")
-    .transition()
-    .duration(1000)
-        .attr("height", width+ margin.left + margin.right-600)
-        .style("transform", "rotate(90deg)")
-        .style("margin-top", "300px")
-        .style("margin-bot", "300px");
-
-}
-
-
 function UpdateG2(key){
-    if (key === "" || key === undefined){
-        key = 0
-    }
-    if (key >= 4){
-        alert("Ingrese solo valores del 0 al 3")
-        return
-    }
-    console.log("key es :",key)
 
     var xScale = d3.scaleLinear()
                     .domain([dataGraph[0].year, dataGraph[dataGraph.length-1].year])
@@ -264,12 +248,11 @@ function UpdateG2(key){
                     .x1((d) => yScale(d[1])).curve(d3.curveCatmullRom.alpha(0.5));
 
     var stackGen = d3.stack()
-                    .keys([keys[key]])
+                    .keys([keys[key-1]])
                     .offset(d3.stackOffsetSilhouette)
                     .order(d3.stackOrderNone);
     var stackedSeries = stackGen(dataGraph);
     
-    var z = d3.interpolateCool
 
     d3.select(".chart")
     .transition()
@@ -300,4 +283,100 @@ function UpdateG2(key){
     .attr("fill", (d) => colorScale[d.key]);
     graf
     .exit().remove();
+}
+
+function BarChart(){
+    const csvString = [
+        [
+            "year", "philosophy", "people", "religion","general"
+        ],
+        ...dataGraph.map(data =>[
+            data.year.getFullYear(),data.philosophy,data.people,data.religion,data.general
+        ])
+    ]
+    .map(e => e.join(","))
+    .join("\n");
+    
+    var data = d3.csvParse(csvString)
+    
+    var subgroups = data.columns.slice(1)
+    
+    console.log("subgroups ",subgroups)
+
+    var groups = d3.map(data, function(d){return(d.year)})
+
+    console.log("grupos de data", groups)
+    
+
+    //agregando X axis
+    var x = d3.scaleBand()
+      .domain(groups)
+      .range([0, width])
+      .padding([0.2])
+
+    svg1.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x).tickSizeOuter(0));
+
+    //agregando Y axis
+    var y = d3.scaleLinear()
+    .domain([0, maxTotal])
+    .range([ height, 0 ]);
+    
+    svg1.append("g")
+        .call(d3.axisLeft(y))
+    
+    //stacke data por subgrupos   
+    var stackedData = d3.stack()
+        .keys(subgroups)
+        (data)
+    
+    console.log("stacke data ",stackedData)
+
+    var mouseover = function(d) {
+        // what subgroup are we hovering?
+        console.log("data en el hover", d)
+        var subgroupName = d3.select(this.parentNode).datum().key; // This was the tricky part
+        console.log("subgroupName : ", subgroupName)
+        //var subgroupValue = d.currentTarget.__data__[subgroupName];
+        // Reduce opacity of all rect to 0.2
+        d3.selectAll(".myRect").style("opacity", 0.2)
+        // Highlight all rects of this subgroup with opacity 0.8. It is possible to select them since they have a specific class = their name.
+        d3.selectAll("."+subgroupName)
+          .style("opacity", 1)
+    };
+
+    var mouseleave = function(d) {
+        // Back to normal opacity: 0.8
+        d3.selectAll(".myRect")
+            .style("opacity",1)
+    };
+
+
+
+    svg1.append("g")
+        .selectAll("g")
+        // Ingrese en la pila de datos = Key de bucle por Key = grupo por grupo
+        .data(stackedData)
+        .enter().append("g")
+            .attr("fill", function(d) { return colorScale[d.key]; })
+            .attr("class", function(d){ return "myRect " + d.key })
+            .selectAll("rect")
+      // ingrese una segunda vez = subgrupo de bucle por subgrupo para agregar todos los rectángulos
+            .data(function(d) { return d; })
+            .enter().append("rect")
+                .attr("x", function(d) { return x(d.data.year); })
+                .attr("y", function(d) { return y(d[1]); })
+                .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+                .attr("width",x.bandwidth())
+                .attr("stroke", "grey")
+            .on("mouseover", mouseover)
+            .on("mouseleave", mouseleave)
+}
+
+function SelectChart(key) {
+    
+    d3.selectAll(".myRect").style("opacity", 0.2)
+    d3.selectAll("."+key)
+      .style("opacity", 1)
 }

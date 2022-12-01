@@ -10,21 +10,26 @@
     <link rel="stylesheet" href="style2.css" />
 </head>
 <body >
-    <button onClick="update();">Update CSS</button>
     <button onClick="updateAll();">Update D3</button>
     <!-- <button onClick="UpdateG2();">Update Key</button> -->
-    <button onClick="UpdateG2(0);">Philosophy</button>
-    <button onClick="UpdateG2(1);">People</button>
-    <button onClick="UpdateG2(2);">Religion</button>
-    <button onClick="UpdateG2(3);">General</button>
     <!-- <button onClick="UpdateG2();">Update Graph2</button> -->
     <!-- <input type="number" id="key" placeholder="ingrese el numero de la key"> -->
     <div class="container">
         <div class="row">
             <div class="col-12">
+                <button onClick="UpdateG2(1);">Philosophy</button>
+                <button onClick="UpdateG2(2);">People</button>
+                <button onClick="UpdateG2(3);">Religion</button>
+                <button onClick="UpdateG2(4);">General</button>
                 <div class="chart">
                 </div>
                 <div class="chart2">
+                </div>
+                <button onClick="SelectChart('philosophy');">Philosophy Chart</button>
+                <button onClick="SelectChart('people');">People Chart</button>
+                <button onClick="SelectChart('religion');">Religion Chart</button>
+                <button onClick="SelectChart('general');">General Chart</button>
+                <div class="chart1">
                 </div>
             </div>
         </div>
