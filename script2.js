@@ -21,6 +21,7 @@ const svg1 = d3
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .style("border", "1px solid red")
+    .style("background-color", "#DCDCDC")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
     .append("g")
@@ -71,50 +72,98 @@ var colorScale = {
     religion: "#BB9F06",
     general: "#8F8F8F"
 }
+var colorScaleSub = { 
+    pWille:"#087F8C",
+    pDing:"#087F8C",
+    pWahr:"#087F8C",
+    pTragische:"#087F8C",
+    pLeiden:"#087F8C",
+    pSchop:"#E12179",
+    pWagn:"#E12179",
+    pKant:"#E12179",
+    pHindu: "#BB9F06",
+    pVedanta: "#BB9F06",
+    pBudd: "#BB9F06",
+    pSchleier: "#BB9F06",
+    pDeutsch: "#8F8F8F",
+    pMusik  : "#8F8F8F"
+
+}
 
 var dataGraph = [];
+var dataRex = [];
 var maxTotal = 0;
 var uTotal = 0;
 
 d3.json("data.json").then(function(data){
     // ecmascript6 6
-    var years = Object.keys(data);
-    console.log("data line 65 ",data);   
+    var years = Object.keys(data); 
 
     years.forEach(function(year){
         var uDataGraph = {};
-        uDataGraph.year = new Date(year, 0, 1);        
+        var udataRex ={};
+        
+        uDataGraph.year = new Date(year, 0, 1);
+        udataRex.year = new Date(year, 0, 1);        
 
-        keys.forEach(function(key){
-
+        keys.forEach(function(key) {
+            var keys_search = Object.keys(array_data_search[key])
+            keys_search.forEach(function(keys) {
+                var i = 0;
+                eval("number_founds_year_"+keys+"="+i);
+            })
+        });
+        keys.forEach(function(key){      
             var number_founds_year = 0;
             data[year].forEach(function(data_year){
-                //console.log("group",data_year.group);
                 data_year.fragments.forEach(function(fragment){
                     var keys_search = Object.keys(array_data_search[key]);
                     keys_search.forEach(function(key_search){
                         var regex = array_data_search[key][key_search];
                         var a_search=fragment.match(regex);                       
                         if(a_search != null){
-                            console.log(year+"_"+key+"_"+key_search, a_search);
-                            number_founds_year+=a_search.length; 
+                            //console.log(year+"_"+key+"_"+key_search, a_search);
+                            number_founds_year+=a_search.length
+                            //Bucle para sumar los datos de los subgrupos de "array_data_search"
+                            keys.forEach(function(ky) {
+                                var keys_sr = Object.keys(array_data_search[ky])
+                                keys_sr.forEach(function(kys) {
+                                    if(key_search === kys){
+                                        eval("number_founds_year_"+kys+"+="+a_search.length);
+                                    }
+                                })
+                            });
                         }                                 
                     });
-
-                });
+                });   
             });
-
             uDataGraph[key] = number_founds_year; 
             // uDataGraph[key] = Math.floor(Math.random() * 100);
         });
+        //Bucle para 
+        keys.forEach(function(key) {
+            var keys_search = Object.keys(array_data_search[key])
+            keys_search.forEach(function(keys) {
+                udataRex[keys] = eval("number_founds_year_"+keys);
 
+                d3.selectAll(".btn-"+keys).style("color","white")
+                    .style("background-color",colorScaleSub[keys])
+                    .style("border", "1px solid"+colorScaleSub[keys])
+                    .style("margin","5px 5px 5px 5px")
+                    .style("display","inline-block")
+                    .style("opacity",0.5)
+                    .on("click", function() {
+                        d3.selectAll(".btChart").style("opacity",0.5)
+                        d3.selectAll(".btn-"+keys).style("opacity",1)
+                    })
+            })
+        });
         
-
-
         // total data 
         uTotal = uDataGraph.philosophy + uDataGraph.people + uDataGraph.religion + uDataGraph.general;
         if(maxTotal < uTotal) maxTotal=uTotal;
-
+        
+        dataRex.push(udataRex);
         dataGraph.push(uDataGraph);
     });
 
@@ -143,9 +192,9 @@ d3.json("data.json").then(function(data){
                     .order(d3.stackOrderNone);
     var stackedSeries = stackGen(dataGraph);
     var z = d3.interpolateCool
+
     console.log("dataGraph", dataGraph);
-    console.log("data StackedSeries", stackedSeries);
-    console.log("las Keys son :", keys);
+    console.log("data del regex", dataRex);
 
     svg.append("g")
         .attr("class","graph1")
@@ -171,7 +220,6 @@ d3.json("data.json").then(function(data){
 BarChart();
 });
 
-console.log("data graph",dataGraph )
 
 function updateAll() {
 
@@ -228,7 +276,6 @@ function updateAll() {
     .transition()
     .duration(2000)
     .attr("transform", "translate(210,0)")
-
     
 }
 
@@ -252,7 +299,6 @@ function UpdateG2(key){
                     .offset(d3.stackOffsetSilhouette)
                     .order(d3.stackOrderNone);
     var stackedSeries = stackGen(dataGraph);
-    
 
     d3.select(".chart")
     .transition()
@@ -293,21 +339,29 @@ function BarChart(){
         ...dataGraph.map(data =>[
             data.year.getFullYear(),data.philosophy,data.people,data.religion,data.general
         ])
-    ]
-    .map(e => e.join(","))
+    ].map(e => e.join(","))
+    .join("\n");
+
+    const newCSV = [
+        [
+            "year","pWille","pDing","pWahr","pTragische","pLeiden","pSchop","pWagn","pKant",
+            "pHindu", "pVedanta","pBudd", "pSchleier","pDeutsch","pMusik"
+        ],
+        ...dataRex.map(data =>[
+            data.year.getFullYear(),
+            data.pWille,data.pDing,data.pWahr,data.pTragische,data.pLeiden,data.pSchop,data.pWagn,data.pKant
+            ,data.pHindu,data.pVedanta,data.pBudd,data.pSchleier,data.pDeutsch,data.pMusik
+        ])
+    ].map(e => e.join(","))
     .join("\n");
     
-    var data = d3.csvParse(csvString)
+
+    var data = d3.csvParse(newCSV)
     
     var subgroups = data.columns.slice(1)
-    
-    console.log("subgroups ",subgroups)
 
     var groups = d3.map(data, function(d){return(d.year)})
-
-    console.log("grupos de data", groups)
     
-
     //agregando X axis
     var x = d3.scaleBand()
       .domain(groups)
@@ -330,26 +384,25 @@ function BarChart(){
     var stackedData = d3.stack()
         .keys(subgroups)
         (data)
-    
-    console.log("stacke data ",stackedData)
 
     var mouseover = function(d) {
-        // what subgroup are we hovering?
-        console.log("data en el hover", d)
-        var subgroupName = d3.select(this.parentNode).datum().key; // This was the tricky part
-        console.log("subgroupName : ", subgroupName)
+
+        var subgroupName = d3.select(this.parentNode).datum().key;
+
         //var subgroupValue = d.currentTarget.__data__[subgroupName];
-        // Reduce opacity of all rect to 0.2
-        d3.selectAll(".myRect").style("opacity", 0.2)
-        // Highlight all rects of this subgroup with opacity 0.8. It is possible to select them since they have a specific class = their name.
+
+        //d3.selectAll(".myRect").style("opacity", "10%")
+
         d3.selectAll("."+subgroupName)
           .style("opacity", 1)
+          .attr("fill", colorScaleSub[subgroupName] )
     };
 
     var mouseleave = function(d) {
-        // Back to normal opacity: 0.8
+
         d3.selectAll(".myRect")
             .style("opacity",1)
+            .attr("fill", "white" )
     };
 
 
@@ -359,7 +412,7 @@ function BarChart(){
         // Ingrese en la pila de datos = Key de bucle por Key = grupo por grupo
         .data(stackedData)
         .enter().append("g")
-            .attr("fill", function(d) { return colorScale[d.key]; })
+            .attr("fill", "white")
             .attr("class", function(d){ return "myRect " + d.key })
             .selectAll("rect")
       // ingrese una segunda vez = subgrupo de bucle por subgrupo para agregar todos los rectángulos
@@ -369,14 +422,23 @@ function BarChart(){
                 .attr("y", function(d) { return y(d[1]); })
                 .attr("height", function(d) { return y(d[0]) - y(d[1]); })
                 .attr("width",x.bandwidth())
-                .attr("stroke", "grey")
+                
             .on("mouseover", mouseover)
             .on("mouseleave", mouseleave)
+
+    d3.selectAll(".myRect").style("opacity", 1)
 }
 
 function SelectChart(key) {
+
+    d3.selectAll(".btn-"+key).style("color","#FFFFFF")
+    .style("background-color",colorScaleSub[key])
+    .style("border", "1px solid"+colorScaleSub[key])
+
     
-    d3.selectAll(".myRect").style("opacity", 0.2)
+    d3.selectAll(".myRect").style("opacity", 1).attr("fill", "white")
+
     d3.selectAll("."+key)
-      .style("opacity", 1)
+          .style("opacity", 1)
+          .attr("fill", colorScaleSub[key] )
 }
