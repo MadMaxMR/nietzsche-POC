@@ -18,9 +18,8 @@ var svg = d3
 const svg1 = d3
     .select(".chart1")
     .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .style("border", "1px solid red")
+    .attr("width", width + margin.left + margin.right-450)
+    .attr("height", height + margin.top + margin.bottom+20)
     .style("background-color", "#DCDCDC")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -87,19 +86,29 @@ var colorScaleSub = {
     pSchleier: "#BB9F06",
     pDeutsch: "#8F8F8F",
     pMusik  : "#8F8F8F"
-
 }
 
 var dataGraph = [];
 var dataRex = [];
+var dataFragment = [];
 var maxTotal = 0;
 var uTotal = 0;
+var groupT = 0;
 
 d3.json("data.json").then(function(data){
     // ecmascript6 6
     var years = Object.keys(data); 
 
+    d3.select(".fragmentTitle").append("text")
+                .html("<p>YEAR:<b>"+1869+"</b> | GROUP:<b>"+data[1869][0].group+"</b> | SEASON:<b>"+data[1869][0].season +"</b></p>")
+                .style("color","red")
+    data[1869][0].fragments.forEach(function(fragment){
+        d3.select(".fragmentText").append("div").html(fragment)
+    })
+
     years.forEach(function(year){
+
+        
         var uDataGraph = {};
         var udataRex ={};
         
@@ -113,9 +122,18 @@ d3.json("data.json").then(function(data){
                 eval("number_founds_year_"+keys+"="+i);
             })
         });
+        console.log("data year-"+ year +" :", data[year])
+        /*Bucle para agregar el año a cada fragmento y agregarlo en la dataFragment para mostrarlo despues*/
+        data[year].forEach(function(data_year){
+            data_year.year = year
+            dataFragment.push(data_year)
+        })
+
+        /*******************************************************************/
         keys.forEach(function(key){      
             var number_founds_year = 0;
             data[year].forEach(function(data_year){
+                groupT += 1
                 data_year.fragments.forEach(function(fragment){
                     var keys_search = Object.keys(array_data_search[key]);
                     keys_search.forEach(function(key_search){
@@ -131,16 +149,16 @@ d3.json("data.json").then(function(data){
                                     if(key_search === kys){
                                         eval("number_founds_year_"+kys+"+="+a_search.length);
                                     }
-                                })
+                                });
                             });
-                        }                                 
+                        };                                 
                     });
                 });   
             });
             uDataGraph[key] = number_founds_year; 
             // uDataGraph[key] = Math.floor(Math.random() * 100);
         });
-        //Bucle para 
+        //Bucle para pintar el boton
         keys.forEach(function(key) {
             var keys_search = Object.keys(array_data_search[key])
             keys_search.forEach(function(keys) {
@@ -165,6 +183,7 @@ d3.json("data.json").then(function(data){
         
         dataRex.push(udataRex);
         dataGraph.push(uDataGraph);
+        
     });
 
     
@@ -195,6 +214,7 @@ d3.json("data.json").then(function(data){
 
     console.log("dataGraph", dataGraph);
     console.log("data del regex", dataRex);
+    console.log("data del Fragment", dataFragment);
 
     svg.append("g")
         .attr("class","graph1")
@@ -332,15 +352,6 @@ function UpdateG2(key){
 }
 
 function BarChart(){
-    const csvString = [
-        [
-            "year", "philosophy", "people", "religion","general"
-        ],
-        ...dataGraph.map(data =>[
-            data.year.getFullYear(),data.philosophy,data.people,data.religion,data.general
-        ])
-    ].map(e => e.join(","))
-    .join("\n");
 
     const newCSV = [
         [
@@ -365,17 +376,17 @@ function BarChart(){
     //agregando X axis
     var x = d3.scaleBand()
       .domain(groups)
-      .range([0, width])
+      .range([0, width-410])
       .padding([0.2])
 
     svg1.append("g")
-    .attr("transform", "translate(0," + height + ")")
+    .attr("transform", "translate(0," + (height+20) + ")")
     .call(d3.axisBottom(x).tickSizeOuter(0));
 
     //agregando Y axis
     var y = d3.scaleLinear()
     .domain([0, maxTotal])
-    .range([ height, 0 ]);
+    .range([ height+20, 0 ]);
     
     svg1.append("g")
         .call(d3.axisLeft(y))
@@ -442,3 +453,42 @@ function SelectChart(key) {
           .style("opacity", 1)
           .attr("fill", colorScaleSub[key] )
 }
+
+var totalTabs = $('.nav-tabs li').length;
+var currentTab = 1;
+var count =0;
+
+//accion del Boton Next de FRAGMENT INFO
+$('#ntxbtn').click(function(e){
+    count +=1;
+    if (count >= 1){
+        d3.selectAll("#prevbtn").style("display", "");
+    };
+
+    d3.select(".fragmentTitle")
+            .html("<p>YEAR:<b>"+dataFragment[count].year+"</b> | GROUP:<b>"+dataFragment[count].group+"</b> | SEASON:<b>"+dataFragment[count].season +"</b></p>")
+            .style("color","red");
+
+    d3.selectAll(".fragmentText").html("")
+
+    dataFragment[count].fragments.forEach(function(fragments){
+        d3.selectAll(".fragmentText").append("div").html(fragments)
+    });
+});
+//accion del Boton Prev de FRAGMENT INFO
+$('#prevbtn').click(function(e){
+    count -=1;
+    if (count <= 0){
+        d3.selectAll("#prevbtn").style("display", "none");
+    };
+
+    d3.select(".fragmentTitle")
+            .html("<p>YEAR:<b>"+dataFragment[count].year+"</b> | GROUP:<b>"+dataFragment[count].group+"</b> | SEASON:<b>"+dataFragment[count].season +"</b></p>")
+            .style("color","red");
+            
+    d3.selectAll(".fragmentText").html("")
+
+    dataFragment[count].fragments.forEach(function(fragments){
+        d3.selectAll(".fragmentText").append("div").html(fragments)
+    });
+});

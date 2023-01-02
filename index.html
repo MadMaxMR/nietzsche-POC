@@ -7,6 +7,8 @@
     <title>Philosophy</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    
     <link rel="stylesheet" href="style2.css" />
 </head>
 <body >
@@ -39,7 +41,19 @@
                 <button class="btn-pSchleier btChart" onClick="SelectChart('pSchleier');">pSchleier Chart</button>
                 <button class="btn-pDeutsch btChart" onClick="SelectChart('pDeutsch');">pDeutsch Chart</button>
                 <button class="btn-pMusik btChart" onClick="SelectChart('pMusik');">pMusik Chart</button>
-                <div class="chart1">
+                <div class="fragmentInfo">
+                    <div class="chart1">
+                    </div>
+                    <div class="v-line">
+                    </div>
+                    <div class="fragment">
+                        <div style = "display:flex" >
+                            <a type="button" class="btn btn-default btn-circle" id="prevbtn" style = "display:none" ><i class="fa-solid fa-chevron-left"></i></a>
+                            <div class="fragmentTitle"></div>
+                            <a type="button" class="btn btn-default btn-circle" id="ntxbtn"><i class="fa-solid fa-chevron-right"></i></a>
+                        </div>
+                        <div class="fragmentText"></div>
+                    </div>
                 </div>
             </div>
         </div>
