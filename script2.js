@@ -618,13 +618,15 @@ function linearGraph() {
             console.log(key)
 
             d3.selectAll(".linealG")
-            .style("opacity",1);
+            .style("opacity",1)
+            .style("fill","#E12179");
             
             d3.selectAll(".linalT")
             .style("fill", "white");
             
             d3.select(".lnl"+key)
             .style("opacity",2)
+            .style("fill","#C81A45");
 
             d3.select(".lnltxt"+key)
             .style("fill", eval("colorScaleSub."+key));
