@@ -2,6 +2,16 @@
 .col-12{
     text-align: center;
 }
+.contLinearGraph{
+    width: 1250px;
+    height: 800px;
+    border: 1px solid black;
+    margin-top: 10px;
+    background-color:#DCDCDC;
+}
+
+
+
 .fragment{
     padding-left: 10px;
 }
