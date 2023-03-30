@@ -629,6 +629,10 @@ function linearGraph() {
             d3.select(".lnltxt"+key)
             .style("fill", eval("colorScaleSub."+key));
             
+            //Eliminar Circulos
+            d3.select(".PeopleLineGraph").selectAll("circle").remove()
+          
+          
             //CREACIÓN DE LOS CIRCULOS EN LAS LINEAS
             linegraph.selectAll("myCircles")
                 .data(dataPeople)
