@@ -618,13 +618,13 @@ function linearGraph() {
             console.log(key)
 
             d3.selectAll(".linealG")
-            .style("opacity",0.5);
+            .style("opacity",1);
             
             d3.selectAll(".linalT")
             .style("fill", "white");
             
             d3.select(".lnl"+key)
-            .style("opacity",1)
+            .style("opacity",2)
 
             d3.select(".lnltxt"+key)
             .style("fill", eval("colorScaleSub."+key));
@@ -641,7 +641,7 @@ function linearGraph() {
                 .attr("fill", eval("colorScaleSub."+key))
                 .attr("stroke", "none")
                 .attr("cx", function(d) { return x(d.year) })
-                .attr("r", 1)
+                .attr("r", 2)
                 .attr("cy", function(d ,i ) {
                     const keys = Object.keys(d)
                     const index = keys.indexOf(key)
@@ -662,7 +662,7 @@ function linearGraph() {
                         .duration(200)
                         .style("opacity", .9)
                     d3.select(this)
-                        .style("stroke", "black")
+                        .style("stroke", "white")
                         .style("opacity", 1);
                      
                     Tooltip
