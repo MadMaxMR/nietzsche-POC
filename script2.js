@@ -638,10 +638,10 @@ function linearGraph() {
                 .data(dataPeople)
                 .enter()
                 .append("circle")
-                .attr("fill", "black")
+                .attr("fill", eval("colorScaleSub."+key))
                 .attr("stroke", "none")
                 .attr("cx", function(d) { return x(d.year) })
-                .attr("r", 5)
+                .attr("r", 1)
                 .attr("cy", function(d ,i ) {
                     const keys = Object.keys(d)
                     const index = keys.indexOf(key)
@@ -655,6 +655,7 @@ function linearGraph() {
                     //return y(eval("d."+key))
                     return  y(stackedValue)
                 })
+                .style("cursor","pointer")
                 .on("click", function(d) {
                     popData = d.target.__data__
                     Tooltip.transition()
