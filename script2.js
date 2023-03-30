@@ -670,13 +670,13 @@ function linearGraph() {
                         .style("top", (d.pageY-60) + "px")
                     //alert("Año: "+ popData.year+" "+key+": "+ eval("popData."+key))
                   })
-                /*.on("mouseleave",function(d){
+                .on("mouseleave",function(d){
                     Tooltip
                         .style("opacity", 0)
                     d3.select(this)
                     .style("stroke", "none")
                     .style("opacity", 0.8)
-                })*/
+                })
         }
         if(valC==false){
             d3.selectAll(".linalT")
