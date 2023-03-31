@@ -643,7 +643,7 @@ function linearGraph() {
                 .attr("fill", eval("colorScaleSub."+key))
                 .attr("stroke", "none")
                 .attr("cx", function(d) { return x(d.year) })
-                .attr("r", 2)
+                .attr("r", 4)
                 .attr("cy", function(d ,i ) {
                     const keys = Object.keys(d)
                     const index = keys.indexOf(key)
