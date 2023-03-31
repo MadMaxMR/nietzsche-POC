@@ -626,7 +626,7 @@ function linearGraph() {
             
             d3.select(".lnl"+key)
             .style("opacity",2)
-            .style("fill","#CF2179");
+            .style("fill","#C81A45");
 
             d3.select(".lnltxt"+key)
             .style("fill", eval("colorScaleSub."+key));
