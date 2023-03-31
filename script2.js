@@ -670,7 +670,7 @@ function linearGraph() {
                     Tooltip
                         .html("The exact value of<br>this cell is:  <br>"+key+": " + eval("popData."+key))
                         .style("left", (d.pageX-50) + "px")
-                        .style("top", (d.pageY-60) + "px")
+                        .style("top", (d.pageY-80) + "px")
                     //alert("Año: "+ popData.year+" "+key+": "+ eval("popData."+key))
                   })
                 .on("mouseleave",function(d){
