@@ -35,7 +35,7 @@ const svg1 = d3
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
     .append("g")
-.attr("class","graph3");
+    .attr("class","graph3");
 
 var linegraph1 = d3
     .select(".PeopleLineGraph")
@@ -44,7 +44,7 @@ var linegraph1 = d3
     .attr("height", height + margin.top + margin.bottom-200)
     .style("border", "1px solid red")
     .append("g")
-.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + "," + (margin.top + 20)+")");
 
 var linegraph2 = d3
     .select(".ReligionLineGraph")
@@ -53,7 +53,7 @@ var linegraph2 = d3
     .attr("height", height + margin.top + margin.bottom-200)
     .style("border", "1px solid red")
     .append("g")
-.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + "," + (margin.top + 20)+")");
 
 var linegraph3 = d3
     .select(".PhilosophyLineGraph")
@@ -62,7 +62,7 @@ var linegraph3 = d3
     .attr("height", height + margin.top + margin.bottom-200)
     .style("border", "1px solid red")
     .append("g")
-.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + "," + (margin.top + 20)+")");
 
 var linegraph4 = d3
     .select(".GeneralLineGraph")
@@ -71,7 +71,7 @@ var linegraph4 = d3
     .attr("height", height + margin.top + margin.bottom-200)
     .style("border", "1px solid red")
     .append("g")
-.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + "," + (margin.top + 20)+")");
 
 
 var keys_resp=  ["philosophy", "people", "religion","general"];
@@ -609,27 +609,24 @@ function linearGraph() {
     var keysPhilosophy = dataPhilosophy.columns.slice(1)
 
     //Data de Germany
-    var dataGermany = d3.csvParse(germanyCSV)
-    var keysGermany = dataGermany.columns.slice(1)
+    var dataGeneral = d3.csvParse(germanyCSV)
+    var keysGeneral = dataGeneral.columns.slice(1)
 
 
 
     var datastackePeople = d3.stack()
         .keys(keysPeople)(dataPeople);
     
-    var x = d3.scaleLinear()
-        .domain(d3.extent(dataPeople, function(d) { return d.year; }))
-        .range([ 0, width+100]);
+    var datastackeReligion = d3.stack()
+        .keys(keysReligion)(dataReligion);
 
-    var y = d3.scaleLinear()
-        .domain([0, 100])
-        .range([ height-200, 0 ]);
+    var datastackePhilosophy = d3.stack()
+        .keys(keysPhilosophy)(dataPhilosophy);
+
+    var datastackeGeneral = d3.stack()
+        .keys(keysGeneral)(dataGeneral);
     
-    var area = d3.area()
-        .x(function(d) { return x(d.data.year); })
-        .y0(function(d) { return y(d[0]); })
-        .y1(function(d) { return y(d[1]); })
-        .curve(d3.curveCatmullRom.alpha(0.1));
+    
         
 
     var valC = false
@@ -677,14 +674,14 @@ function linearGraph() {
             d3.select("."+keyGroup+"LineGraph").selectAll("circle").remove();
             
             d3.select(".lnl"+key)
-            .style("fill", ()=>{
-                var color = d3.color(eval("colorScaleSub."+key))
-                color.r *= 0.8;
-                color.g *= 0.8;
-                color.b *= 0.8;
-                
-                return color.toString()
-            });
+                .style("fill", ()=>{
+                    var color = d3.color(eval("colorScaleSub."+key))
+                    color.r *= 0.8;
+                    color.g *= 0.8;
+                    color.b *= 0.8;
+                    
+                    return color.toString()
+                });
 
             d3.select(".lnltxt"+key)
             .style("fill", eval("colorScaleSub."+key));  
@@ -746,70 +743,80 @@ function linearGraph() {
     }//FIN DE LA FUNCIÓN  TEXTCLICK
 
     for (let i = 1; i < 5; i++) {
-        var keyGroup
-        if(i = 1){
-            keygroup = "People"
-        }else if (i = 2){
-            keyGroup = "Religion"
-        }else if (i = 3){
-            keyGroup = "Philosophy"
-        }else if (i = 4) {
-            keyGroup = "General"
+        var keyLabel 
+        if(i === 1){
+            keyLabel = "People"
+        }else if (i === 2){
+            keyLabel = "Religion"
+        }else if (i === 3){
+            keyLabel = "Philosophy"
+        }else if (i === 4) {
+            keyLabel = "General"
         }
-        eval("linegraph1")
-            .append("g")
+        var x = d3.scaleLinear()
+            .domain(d3.extent(eval("data"+keyLabel), function(d) { return d.year; }))
+            .range([ 0, width+100]);
+
+        var y = d3.scaleLinear()
+            .domain([0, 100])
+            .range([ height-200, 0 ]);
+    
+        var area = d3.area()
+            .x(function(d) { return x(d.data.year); })
+            .y0(function(d) { return y(d[0]); })
+            .y1(function(d) { return y(d[1]); })
+            .curve(d3.curveCatmullRom.alpha(0));
+        
+        //CREANDO EL GRAFICO STACKEADO CON LA CLASS linealG+UpKEY
+        eval("linegraph"+i).append("g")
             .selectAll("g")
-            .data(eval("datastacke"+keygroup))
+            .data(eval("datastacke"+keyLabel))
             .enter()
             .append("path")
             .attr("d", area)
             .attr("class", function(d) {
                 const keys = Object.keys(keyValue);
                 const index = keys.indexOf(d.key);
-                return "LineasG"+keyGroup + "lnl"+d.key
+                return "linealG"+keyLabel + " lnl"+d.key
             })
-        .style("fill", eval("colorScale."+keyGroup));
-    }
-
-    //CREANDO EL GRAFICO STACKEADO CON LA CLASS linealG+UpKEY
+        .style("fill",(d)=>{return eval("colorScaleSub."+d.key)} );
     
-
-    
-    //CREANDO EL TEXTO DEL GRÄFICO
-    linegraph1.selectAll("mylabels").append("g")
-        .data(keysPeople)
-        .enter()
-        .append("text")
-            .attr("x", function(d,i){
-                if(i>0){
-                    return 0 + i*(200)+((i-1)*(140))
-                }
-                return  0
+        
+        //CREANDO EL TEXTO DEL GRÄFICO
+        eval("linegraph"+i).selectAll("mylabels").append("g")
+            .data(eval("keys"+keyLabel))
+            .enter()
+            .append("text")
+                .attr("x", function(d,i){
+                    if(i>0){
+                        return 0 + i*(200)+((i-1)*(140))
+                    }
+                    return  0
+                    })
+                .attr("y",25)
+                .text(function(d){
+                    return eval("keyValue."+d) 
                 })
-            .attr("y",50)
-            .text(function(d){
-                return eval("keyValue."+d) 
-            })
-            .attr("text-anchor", "left")
-            .attr("class", function(d){
-                const keys = Object.keys(keyValue);
-                const index = keys.indexOf(d);
-                if(index>=0 && index <=4){
-                    return "linealTPhilosophy" + " lnltxt"+d 
-                }else if (index>=5 && index <=7){
-                    return "linealTPeople" + " lnltxt"+d 
-                }else if (index>=8 && index <=11){
-                    return "linealTReligion" + " lnltxt"+d 
-                }else if (index>=12 && index <=13){
-                    return "linealTGeneral" + " lnltxt"+d 
-                }
-            })
-            .style("alignment-baseline", "middle")
-            .style("font-size","56px")
-            .style("fill", "white")
-            .style("font-family", "PlayfairDisplay-Regular")
-            .style("cursor","pointer")
-            .on("click",function(d){textClick(d,d3.event);});
-     
+                .attr("text-anchor", "left")
+                .attr("class", function(d){
+                    const keys = Object.keys(keyValue);
+                    const index = keys.indexOf(d);
+                    if(index>=0 && index <=4){
+                        return "linealTPhilosophy" + " lnltxt"+d 
+                    }else if (index>=5 && index <=7){
+                        return "linealTPeople" + " lnltxt"+d 
+                    }else if (index>=8 && index <=11){
+                        return "linealTReligion" + " lnltxt"+d 
+                    }else if (index>=12 && index <=13){
+                        return "linealTGeneral" + " lnltxt"+d 
+                    }
+                })
+                .style("alignment-baseline", "middle")
+                .style("font-size","56px")
+                .style("fill", "white")
+                .style("font-family", "PlayfairDisplay-Regular")
+                .style("cursor","pointer")
+                .on("click",function(d){textClick(d,d3.event);});
+    }
 }
 
