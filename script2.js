@@ -24,6 +24,15 @@ var svg2 = d3
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+var svgTime = d3
+    .select(".TimeChart")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom-300)
+    .style("border", "1px solid red")
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
 
 //bar chart + INFO
 const svg1 = d3
@@ -36,13 +45,12 @@ const svg1 = d3
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
     .append("g")
     .attr("class","graph3");
-
+//Linea graph
 var linegraph1 = d3
     .select(".PeopleLineGraph")
     .append("svg")
     .attr("width", width + margin.left + margin.right+80)
     .attr("height", height + margin.top + margin.bottom-200)
-    .style("border", "1px solid red")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + (margin.top + 20)+")");
 
@@ -51,7 +59,6 @@ var linegraph2 = d3
     .append("svg")
     .attr("width", width + margin.left + margin.right+80)
     .attr("height", height + margin.top + margin.bottom-200)
-    .style("border", "1px solid red")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + (margin.top + 20)+")");
 
@@ -60,7 +67,6 @@ var linegraph3 = d3
     .append("svg")
     .attr("width", width + margin.left + margin.right+80)
     .attr("height", height + margin.top + margin.bottom-200)
-    .style("border", "1px solid red")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + (margin.top + 20)+")");
 
@@ -69,7 +75,6 @@ var linegraph4 = d3
     .append("svg")
     .attr("width", width + margin.left + margin.right+80)
     .attr("height", height + margin.top + margin.bottom-200)
-    .style("border", "1px solid red")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + (margin.top + 20)+")");
 
@@ -104,16 +109,16 @@ var keyValue = {
     pWille:"Wille",
     pDing:"Ding an sich",
     pWahr:"Wahrheit",
-    pTragische:"Tragi",
+    pTragische:"Tragische",
     pLeiden:"Leiden",
     pSchop:"Schopenhauer",
     pWagn:"Wagner",
     pKant:"Kant",
-    pHindu: "Hindus",
+    pHindu: "Hinduism",
     pVedanta: "Vedanta",
     pBudd: "Buddhis",
     pSchleier: "Schleier",
-    pDeutsch: "Deutsch",
+    pDeutsch: "Deutschland",
     pMusik  : "Musik"
 }
 
@@ -174,7 +179,7 @@ d3.json("data.json").then(function(data){
                 eval("number_founds_year_"+keys+"="+i);
             })
         });
-        console.log("data year-"+ year +" :", data[year])
+        //console.log("data year-"+ year +" :", data[year])
         /*Bucle para agregar el año a cada fragmento y agregarlo en la dataFragment para mostrarlo despues*/
         data[year].forEach(function(data_year){
             data_year.year = year
@@ -452,10 +457,6 @@ function BarChart(){
 
         var subgroupName = d3.select(this.parentNode).datum().key;
 
-        //var subgroupValue = d.currentTarget.__data__[subgroupName];
-
-        //d3.selectAll(".myRect").style("opacity", "10%")
-
         d3.selectAll("."+subgroupName)
           .style("opacity", 1)
           .attr("fill", colorScaleSub[subgroupName] )
@@ -467,8 +468,6 @@ function BarChart(){
             .style("opacity",1)
             .attr("fill", "white" )
     };
-
-
 
     svg1.append("g")
         .selectAll("g")
@@ -508,7 +507,7 @@ function SelectChart(key) {
 
 var totalTabs = $('.nav-tabs li').length;
 var currentTab = 1;
-var count =0;
+var count = 0;
 
 //accion del Boton Next de FRAGMENT INFO
 $('#ntxbtn').click(function(e){
@@ -624,25 +623,9 @@ function linearGraph() {
         .keys(keysPhilosophy)(dataPhilosophy);
 
     var datastackeGeneral = d3.stack()
-        .keys(keysGeneral)(dataGeneral);
-    
-    
-        
+        .keys(keysGeneral)(dataGeneral);       
 
     var valC = false
-
-    //CREACION DEL POPUP
-    var Tooltip = d3.select(".PeopleLineGraph")
-                    .append("div")
-                    .style("opacity", 0)
-                    .attr("class", "tooltip")
-                    .style("background-color", "#222222")
-                    .style("border", "solid")
-                    .style("border-width", "2px")
-                    .style("border-radius", "5px")
-                    .style("border-color", "#222222")
-                    .style("padding", "5px")
-                    .style("color", "white")
     
     var textClick = function(d){
         var keyGroup
@@ -689,11 +672,12 @@ function linearGraph() {
             console.log("Valor de key group", keyGroup);
 
             //CREACIÓN DE LOS CIRCULOS EN LAS LINEAS
-            d3.selectAll(".PeopleLineGraph svg g").selectAll("myCircles")
-                .data(dataPeople)
+            d3.selectAll("."+keyGroup+"LineGraph svg g").selectAll("myCircles")
+                .data(eval("data"+keyGroup))
                 .enter()
                 .append("circle")
                 .attr("fill", eval("colorScaleSub."+key)+1)
+                .style("opacity", 0.1)
                 .attr("stroke", "none")
                 .attr("cx", function(d) { return x(d.year) })
                 .attr("r", 4)
@@ -711,16 +695,28 @@ function linearGraph() {
                 .style("cursor","pointer")
                 .on("click", function(d) {
                     popData = d.target.__data__
+                    var popDataHTML = ""
+                    let dPop = Object.keys(popData)
+                    var totalP = 0 
+                    for (let i = 1; i < dPop.length; i++) {
+                        popDataHTML += eval("keyValue."+dPop[i]+".toUpperCase()") + ": "
+                        +"<span>"+ popData[dPop[i]] + " mentions"+"</span>"+"<br>" 
+                        totalP += parseInt(popData[dPop[i]])
+                    }
+
                     Tooltip
                         .style("opacity", .9)
+
                     d3.select(this)
                         .style("stroke", "white")
                         .style("opacity", 1);
                      
                     Tooltip
-                        .html("The exact value of<br>this cell is:  <br>"+key+": " + eval("popData."+key))
+                        .html(""+popData.year+"<br>"+"<hr>"+
+                            "Total: "+totalP+" mentions <br>"+
+                            popDataHTML)
                         .style("left", (d.pageX-50) + "px")
-                        .style("top", (d.pageY-80) + "px")
+                        .style("top", (d.pageY-((dPop.length-1)*20+60)) + "px")
                     //alert("Año: "+ popData.year+" "+key+": "+ eval("popData."+key))
                   })
                 .on("mouseleave",function(d){
@@ -729,7 +725,7 @@ function linearGraph() {
                         .style("opacity", 0)
                     d3.select(this)
                     .style("stroke", "none")
-                    .style("opacity", 0.8)
+                    .style("opacity", 0.1)
                 });
         }
         if(valC==false){
@@ -742,6 +738,8 @@ function linearGraph() {
 
     }//FIN DE LA FUNCIÓN  TEXTCLICK
 
+
+    //Bucle para generar los 4 gráficos
     for (let i = 1; i < 5; i++) {
         var keyLabel 
         if(i === 1){
@@ -757,16 +755,30 @@ function linearGraph() {
             .domain(d3.extent(eval("data"+keyLabel), function(d) { return d.year; }))
             .range([ 0, width+100]);
 
+        
         var y = d3.scaleLinear()
             .domain([0, 100])
-            .range([ height-200, 0 ]);
+            .range([ height-200, 100 ]);
     
         var area = d3.area()
             .x(function(d) { return x(d.data.year); })
             .y0(function(d) { return y(d[0]); })
             .y1(function(d) { return y(d[1]); })
             .curve(d3.curveCatmullRom.alpha(0));
-        
+
+         //CREACION DEL POPUP
+        var Tooltip = d3.select("."+keyLabel+"LineGraph")   
+                        .append("div")
+                        .style("opacity", 0)
+                        .attr("class", "tooltip")
+                        .style("background-color", "#222222")
+                        .style("border", "solid")
+                        .style("border-width", "2px")
+                        .style("border-radius", "5px")
+                        .style("border-color", "#222222")
+                        .style("padding", "5px")
+                        .style("color", "white")
+
         //CREANDO EL GRAFICO STACKEADO CON LA CLASS linealG+UpKEY
         eval("linegraph"+i).append("g")
             .selectAll("g")
@@ -780,43 +792,51 @@ function linearGraph() {
                 return "linealG"+keyLabel + " lnl"+d.key
             })
         .style("fill",(d)=>{return eval("colorScaleSub."+d.key)} );
-    
         
+
         //CREANDO EL TEXTO DEL GRÄFICO
         eval("linegraph"+i).selectAll("mylabels").append("g")
             .data(eval("keys"+keyLabel))
             .enter()
             .append("text")
-                .attr("x", function(d,i){
-                    if(i>0){
-                        return 0 + i*(200)+((i-1)*(140))
-                    }
-                    return  0
-                    })
-                .attr("y",25)
-                .text(function(d){
+            .attr("x", function(d,i){
+                if(i>0){
+                    // console.log("Tamaño de texto", d,"-Valor: " +eval("keyValue."+d+".length") )
+                    // console.log("Valor del long" + long);
+                    distance = long*(long)+200
+                    long =  eval("keyValue."+d+".length") + long
+                    return distance
+                }
+                long =  eval("keyValue."+d+".length")
+                return  0
+                })
+            .attr("y",25)
+            .text(function(d,i){
+                if (i>0){
                     return eval("keyValue."+d) 
-                })
-                .attr("text-anchor", "left")
-                .attr("class", function(d){
-                    const keys = Object.keys(keyValue);
-                    const index = keys.indexOf(d);
-                    if(index>=0 && index <=4){
-                        return "linealTPhilosophy" + " lnltxt"+d 
-                    }else if (index>=5 && index <=7){
-                        return "linealTPeople" + " lnltxt"+d 
-                    }else if (index>=8 && index <=11){
-                        return "linealTReligion" + " lnltxt"+d 
-                    }else if (index>=12 && index <=13){
-                        return "linealTGeneral" + " lnltxt"+d 
-                    }
-                })
-                .style("alignment-baseline", "middle")
-                .style("font-size","56px")
-                .style("fill", "white")
-                .style("font-family", "PlayfairDisplay-Regular")
-                .style("cursor","pointer")
-                .on("click",function(d){textClick(d,d3.event);});
-    }
+                }
+                return eval("keyValue."+d) 
+            })
+            .attr("text-anchor", "left")
+            .attr("class", function(d){
+                const keys = Object.keys(keyValue);
+                const index = keys.indexOf(d);
+                if(index>=0 && index <=4){
+                    return "linealTPhilosophy" + " lnltxt"+d 
+                }else if (index>=5 && index <=7){
+                    return "linealTPeople" + " lnltxt"+d 
+                }else if (index>=8 && index <=11){
+                    return "linealTReligion" + " lnltxt"+d 
+                }else if (index>=12 && index <=13){
+                    return "linealTGeneral" + " lnltxt"+d 
+                }
+            })
+            .style("alignment-baseline", "middle")
+            .style("font-size","50px")
+            .style("fill", "white")
+            .style("font-family", "PlayfairDisplay-Regular")
+            .style("cursor","pointer")
+            .on("click",function(d){textClick(d,d3.event);});
+}
 }
 

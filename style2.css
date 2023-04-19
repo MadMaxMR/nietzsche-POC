@@ -5,11 +5,18 @@
 .contLinearGraph{
     width: 1250px;
     height: 800px;
-    border: 1px solid black;
+    /*border: 1px solid black;*/
     margin-top: 10px;
     background-color:#DCDCDC;
 }
 
+.tooltip hr {
+    margin-top: 2px;
+    margin-bottom: 5px;
+    border: 0;
+    border-top: 1px solid #eee;
+    border-style: dotted;
+}
 
 
 .fragment{
