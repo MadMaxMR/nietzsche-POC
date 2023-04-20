@@ -30,8 +30,11 @@ var svgTime = d3
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom-300)
     .style("border", "1px solid red")
+    .style("background-color", "#DCDCDC")
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .append("g")
+    .attr("class","graph3");
 
 
 //bar chart + INFO
@@ -445,8 +448,8 @@ function BarChart(){
     .domain([0, maxTotal])
     .range([ height+20, 0 ]);
     
-    svg1.append("g")
-        .call(d3.axisLeft(y))
+    // svg1.append("g")
+    //     .call(d3.axisLeft(y))
     
     //stacke data por subgrupos   
     var stackedData = d3.stack()
@@ -488,7 +491,38 @@ function BarChart(){
             .on("mouseover", mouseover)
             .on("mouseleave", mouseleave)
 
-    d3.selectAll(".myRect").style("opacity", 1)
+    d3.selectAll(".myRect").style("opacity", 1);
+//GRAFICO TIME DE BARRAS
+    var x1 = d3.scaleBand()
+        .domain(groups)
+        .range([0, width])
+        .padding([0.2])
+    var y1 = d3.scaleLinear()
+        .domain([0, maxTotal])
+        .range([ height-300, 0 ]);
+        
+
+    svgTime.append("g")
+        .attr("transform", "translate(0," + (height-300) + ")")
+        .call(d3.axisBottom(x1).tickSizeOuter(0));
+
+    svgTime.append("g")
+        .selectAll("g")
+        // Ingrese en la pila de datos = Key de bucle por Key = grupo por grupo
+        .data(stackedData)
+        .enter()
+        .append("g")
+        .attr("fill", "white")
+        .attr("class", "")
+        .selectAll("rect")
+        .data(function(d) { return d; })
+            .enter().append("rect")
+        .attr("x", function(d) { return x1(d.data.year); })
+        .attr("y", function(d) { return y1(d[1]); })
+        .attr("height", function(d) { return y1(d[0]) - y1(d[1]); })
+        .attr("width",x1.bandwidth()-30)   
+
+
 }
 
 function SelectChart(key) {
@@ -610,8 +644,6 @@ function linearGraph() {
     //Data de Germany
     var dataGeneral = d3.csvParse(germanyCSV)
     var keysGeneral = dataGeneral.columns.slice(1)
-
-
 
     var datastackePeople = d3.stack()
         .keys(keysPeople)(dataPeople);
@@ -837,6 +869,6 @@ function linearGraph() {
             .style("font-family", "PlayfairDisplay-Regular")
             .style("cursor","pointer")
             .on("click",function(d){textClick(d,d3.event);});
-}
+    }
 }
 
