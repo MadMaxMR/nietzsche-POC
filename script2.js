@@ -275,8 +275,8 @@ d3.json("data.json").then(function(data){
         
     });
     
-    console.log("dataGraph", dataGraph);
-    console.log("data del regex", dataRex);
+    // console.log("dataGraph", dataGraph);
+    // console.log("data del regex", dataRex);
     
     var xScale = d3.scaleLinear()
                     .domain([dataGraph[0].year, dataGraph[dataGraph.length-1].year])
@@ -706,7 +706,7 @@ function linearGraph() {
             d3.select(".lnltxt"+key)
             .style("fill", eval("colorScaleSub."+key));  
             
-            console.log("Valor de key group", keyGroup);
+            //console.log("Valor de key group", keyGroup);
 
             //CREACIÓN DE LOS CIRCULOS EN LAS LINEAS
             d3.selectAll("."+keyGroup+"LineGraph svg g").selectAll("myCircles")
@@ -882,6 +882,7 @@ function linearGraph() {
 //     .style("width",width+"px")
 
 window.onload = function(){
+    fGraph(1876,1880);
     moveSlide();
 }
 
