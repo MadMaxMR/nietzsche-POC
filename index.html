@@ -28,31 +28,31 @@
                 <div class="chart2">
                 </div>
                 <div>
-                    <div class = "TimeChart">
-                        <div class="linea">
-                            <div class="marcador">
-                                <div class="marcador-triangulo"></div>
-                                <div class="marcador-anio">1915</div>
-                            </div>
-                        </div>
+                    <div class = "TimeChart"></div>
+                    <div class="linea">
+                        <input type="range" min="1869" max="1888" value="1875" id="slider-1" class="input-anio" oninput="moveSlide()">
+                        <span id="range1" class="marcador-anio">1875</span>
+                        <input type="range" min="1869" max="1888" value="1880" id="slider-2" class="input-anio" oninput="moveSlide()">
+                        <span id="range2" class="marcador-anio">1880</span>
                     </div>
-                    
                 </div>
-                <div>
-                    <button class="btn-pWille btChart"  onClick="SelectChart('pWille');">pWille Chart</button>
-                    <button class="btn-pDing btChart" onClick="SelectChart('pDing');">pDing Chart</button>
-                    <button class="btn-pWahr btChart" onClick="SelectChart('pWahr');">pWahr Chart</button>
-                    <button class="btn-pTragische btChart" onClick="SelectChart('pTragische');">pTragische Chart</button>
-                    <button class="btn-pLeiden btChart" onClick="SelectChart('pLeiden');">pLeiden Chart</button>
-                    <button class="btn-pSchop btChart" onClick="SelectChart('pSchop');">pSchop Chart</button>
-                    <button class="btn-pWagn btChart" onClick="SelectChart('pWagn');">pWagn Chart</button>
-                    <button class="btn-pKant btChart" onClick="SelectChart('pKant');">pKant Chart</button>
-                    <button class="btn-pHindu btChart" onClick="SelectChart('pHindu');">pHindu Chart</button>
-                    <button class="btn-pVedanta btChart" onClick="SelectChart('pVedanta');">pVedanta Chart</button>
-                    <button class="btn-pBudd btChart" onClick="SelectChart('pBudd');">pBudd Chart</button>
-                    <button class="btn-pSchleier btChart" onClick="SelectChart('pSchleier');">pSchleier Chart</button>
-                    <button class="btn-pDeutsch btChart" onClick="SelectChart('pDeutsch');">pDeutsch Chart</button>
-                    <button class="btn-pMusik btChart" onClick="SelectChart('pMusik');">pMusik Chart</button>
+                <div class = "btn-Charts">
+                    <div class = "btnContainer">
+                        <button class="btn-pWille btChart"  onClick="SelectChart('pWille');">pWille Chart</button>
+                        <button class="btn-pDing btChart" onClick="SelectChart('pDing');">pDing Chart</button>
+                        <button class="btn-pWahr btChart" onClick="SelectChart('pWahr');">pWahr Chart</button>
+                        <button class="btn-pTragische btChart" onClick="SelectChart('pTragische');">pTragische Chart</button>
+                        <button class="btn-pLeiden btChart" onClick="SelectChart('pLeiden');">pLeiden Chart</button>
+                        <button class="btn-pSchop btChart" onClick="SelectChart('pSchop');">pSchop Chart</button>
+                        <button class="btn-pWagn btChart" onClick="SelectChart('pWagn');">pWagn Chart</button>
+                        <button class="btn-pKant btChart" onClick="SelectChart('pKant');">pKant Chart</button>
+                        <button class="btn-pHindu btChart" onClick="SelectChart('pHindu');">pHindu Chart</button>
+                        <button class="btn-pVedanta btChart" onClick="SelectChart('pVedanta');">pVedanta Chart</button>
+                        <button class="btn-pBudd btChart" onClick="SelectChart('pBudd');">pBudd Chart</button>
+                        <button class="btn-pSchleier btChart" onClick="SelectChart('pSchleier');">pSchleier Chart</button>
+                        <button class="btn-pDeutsch btChart" onClick="SelectChart('pDeutsch');">pDeutsch Chart</button>
+                        <button class="btn-pMusik btChart" onClick="SelectChart('pMusik');">pMusik Chart</button>
+                    </div>
                 </div>
                 <div class="fragmentInfo">
                     <div class="chart1">

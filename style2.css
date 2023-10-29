@@ -54,10 +54,24 @@
     background-color:#DCDCDC;
     border: 1px solid rgb(255, 255, 255);
 }
-.btn {
+.btChart {
     margin-left: 10px;
     margin-right: 10px;
     margin-top: 5px;
+    border-radius: 10px;
+}
+.btn-Charts{
+    width: 1250px;
+    height:100px;
+    margin-top: -6px;
+    background-color:#DCDCDC;
+    margin-bottom: -10px;
+}
+
+.btnContainer{
+    width: 850px;
+    height:100px;
+    display: inline-block;
 }
 
 
@@ -86,32 +100,78 @@
 
 
 .linea {
-    width: 600px;
+    width: 1070.5px;
     height: 4px;
-    background-color: #ccc;
-    margin: 20px auto;
+    background-color: #ffffff;
+    margin: -84px auto 0px 60px;
     position: absolute;
+}
+
+.TimeChart rect.selection {
+    stroke: none;
+    fill: rgb(146, 146, 146);
+    fill-opacity: 0.0;
+    cursor:default;
+}
+
+.TimeChart .parent {
+    pointer-events:none
 }
 
 /* Estilo para el marcador */
-.marcador {
+
+#range1 {
     position: absolute;
-    bottom: -30px;
-    left: 50px;
-    text-align: center;
+    top: 40px; /* ajusta la distancia vertical desde el slider-thumb */
+    left: 51.5%; /* coloca el texto en el centro del slider */
+    font-size: 0.9em; 
+}
+#range2 {
+    position: absolute;
+    top: 40px; /* ajusta la distancia vertical desde el slider-thumb */
+    left: 92.5%; /* coloca el texto en el centro del slider */
+    font-size: 0.9em; 
 }
 
-.marcador-triangulo {
+/*doble range*/
+
+.wrapper{
+    position: relative;
+    width: 95vmin;
+    background-color: #646464;
+    padding: 50px 40px 20px 40px;
+    border-radius: 10px;
+}
+
+input[type="range"]{
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: none;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    background-color: transparent;
+    pointer-events: none;
+    padding-left: 13px;
+    padding-right:31px;
+}
+
+input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance: none;
+    cursor: pointer;
+    margin-top: 50px;
+    pointer-events: auto;
+    border-radius: 0%;
     width: 0;
     height: 0;
-    margin-top: 15px;
     border-style: solid;
     border-width: 0 10px 20px 10px;
-    border-color: transparent transparent #ccc transparent;
-    margin: 0 auto;
+    border-color: transparent transparent #050505 transparent;
 }
 
-.marcador-anio {
-    font-size: 12px;
-    margin-top: 5px;
+.selected {
+    opacity: 1;
+    fill: rgb(255, 255, 255);
 }

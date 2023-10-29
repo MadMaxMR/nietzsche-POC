@@ -24,12 +24,13 @@ var svg2 = d3
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+// Bar chart de tiempos
 var svgTime = d3
     .select(".TimeChart")
     .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom-300)
-    .style("border", "1px solid red")
+    .attr("width", width + margin.left + margin.right+80)
+    .attr("height", height + margin.top + margin.bottom-250)
+    .attr("id","timechart")
     .style("background-color", "#DCDCDC")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -151,12 +152,15 @@ var colorScaleSub = {
 var dataGraph = [];
 var dataRex = [];
 var dataFragment = [];
+var dataYearFragment = [];
+var dataGroup = [];	
 var maxTotal = 0;
 var uTotal = 0;
 var groupT = 0;
 
 d3.json("data.json").then(function(data){
     // ecmascript6 6
+    //console.log("VALOR DEL DATA = ",data);
     var years = Object.keys(data); 
 
     d3.select(".fragmentTitle").append("text")
@@ -168,62 +172,87 @@ d3.json("data.json").then(function(data){
 
     years.forEach(function(year){
 
-        
         var uDataGraph = {};
         var udataRex ={};
         
         uDataGraph.year = new Date(year, 0, 1);
         udataRex.year = new Date(year, 0, 1);        
-
-        keys.forEach(function(key) {
-            var keys_search = Object.keys(array_data_search[key])
-            keys_search.forEach(function(keys) {
-                var i = 0;
-                eval("number_founds_year_"+keys+"="+i);
-            })
-        });
-        //console.log("data year-"+ year +" :", data[year])
-        /*Bucle para agregar el año a cada fragmento y agregarlo en la dataFragment para mostrarlo despues*/
-        data[year].forEach(function(data_year){
-            data_year.year = year
-            dataFragment.push(data_year)
+        
+        var key_regex = Object.keys(keyValue)
+        key_regex.forEach(function(keys) {
+            var i = 0;
+            eval("number_founds_year_"+keys+"="+i);
         })
-
+       
+        /*Bucle para agregar el año a cada fragmento y agregarlo en la dataFragment para mostrarlo despues*/
+        data[year].forEach(function(data_year1){
+            var uDataGroup ={}
+            key_regex.forEach((keys)=> {
+                var i = 0;
+                eval("number_founds_subkey_"+keys+"="+i);
+            })
+            
+            data_year1.fragments.forEach((fragment)=>{
+                keys.forEach((key)=>{
+                    var keys_search = Object.keys(array_data_search[key]);
+                    keys_search.forEach((key_search)=>{
+                        var regex = array_data_search[key][key_search];
+                        var a_search=fragment.match(regex);
+                        if(a_search == null){a_search = []}
+                        key_regex.forEach((kys)=> {
+                            if(key_search === kys){
+                                eval("number_founds_subkey_"+kys+"+="+a_search.length);
+                                uDataGroup[kys] =  eval("number_founds_subkey_"+kys)
+                            }
+                        });
+                    })
+                })
+            })
+            data_year1.year = year
+            uDataGroup["year"] = ""+data_year1.year+"-"+data_year1.group 
+            dataFragment.push(data_year1)
+            dataGroup.push(uDataGroup)
+        });
         /*******************************************************************/
         keys.forEach(function(key){      
             var number_founds_year = 0;
+            //console.log("*****************************************************************************************");
+            //console.log("VALOR DE LA KEY = ",key);
             data[year].forEach(function(data_year){
-                groupT += 1
+                //console.log("GRUPO  = %o AÑO %o", data_year.group, data_year.year);
+               // console.log("DATA_YEAR = ", data_year);
                 data_year.fragments.forEach(function(fragment){
+                    //console.log("VALOR DEL FRAGMENT", fragment);
                     var keys_search = Object.keys(array_data_search[key]);
                     keys_search.forEach(function(key_search){
                         var regex = array_data_search[key][key_search];
-                        var a_search=fragment.match(regex);                       
-                        if(a_search != null){
-                            //console.log(year+"_"+key+"_"+key_search, a_search);
-                            number_founds_year+=a_search.length
-                            //Bucle para sumar los datos de los subgrupos de "array_data_search"
-                            keys.forEach(function(ky) {
-                                var keys_sr = Object.keys(array_data_search[ky])
-                                keys_sr.forEach(function(kys) {
-                                    if(key_search === kys){
-                                        eval("number_founds_year_"+kys+"+="+a_search.length);
-                                    }
-                                });
+                        var a_search=fragment.match(regex);
+                        if(a_search == null){a_search = []}                       
+                        
+                        //console.log(year+"_"+key+"_"+key_search, a_search);
+                        number_founds_year+=a_search.length
+                        //console.log("VALOR DEL NUMBER FOUND = ",a_search);
+                        //Bucle para sumar los datos de los subgrupos de "array_data_search"
+                        keys.forEach(function(ky) {
+                            var keys_sr = Object.keys(array_data_search[ky])
+                            keys_sr.forEach(function(kys) {
+                                if(key_search === kys){
+                                    eval("number_founds_year_"+kys+"+="+a_search.length);
+                                    udataRex[kys] = eval("number_founds_year_"+kys);
+                                }
                             });
-                        };                                 
+                        });                                
                     });
-                });   
+                    dataYearFragment
+                });
             });
             uDataGraph[key] = number_founds_year; 
-            // uDataGraph[key] = Math.floor(Math.random() * 100);
         });
         //Bucle para pintar el boton
         keys.forEach(function(key) {
             var keys_search = Object.keys(array_data_search[key])
             keys_search.forEach(function(keys) {
-                udataRex[keys] = eval("number_founds_year_"+keys);
-
+                
                 d3.selectAll(".btn-"+keys).style("color","white")
                     .style("background-color",colorScaleSub[keys])
                     .style("border", "1px solid"+colorScaleSub[keys])
@@ -245,7 +274,9 @@ d3.json("data.json").then(function(data){
         dataGraph.push(uDataGraph);
         
     });
-
+    
+    console.log("dataGraph", dataGraph);
+    console.log("data del regex", dataRex);
     
     var xScale = d3.scaleLinear()
                     .domain([dataGraph[0].year, dataGraph[dataGraph.length-1].year])
@@ -272,10 +303,6 @@ d3.json("data.json").then(function(data){
     var stackedSeries = stackGen(dataGraph);
     var z = d3.interpolateCool
 
-    console.log("dataGraph", dataGraph);
-    console.log("data del regex", dataRex);
-    console.log("data del Fragment", dataFragment);
-
     svg.append("g")
         .attr("class","graph1")
         .selectAll(".areas")
@@ -297,8 +324,8 @@ d3.json("data.json").then(function(data){
         .attr("class", "AxisX")
         .call(xAxis);
 
-BarChart();
 linearGraph();
+BarChart();
 });
 
 
@@ -412,126 +439,104 @@ function UpdateG2(key){
     .exit().remove();
 }
 
+var x1
+var y1
+//BarChart Función para el gráfico de selección de rango de años y dibujo del grafico de barras
 function BarChart(){
-
     const newCSV = [
-        [
-            "year","pWille","pDing","pWahr","pTragische","pLeiden","pSchop","pWagn","pKant",
-            "pHindu", "pVedanta","pBudd", "pSchleier","pDeutsch","pMusik"
-        ],
-        ...dataRex.map(data =>[
-            data.year.getFullYear(),
+        [ "year","pWille","pDing","pWahr","pTragische","pLeiden","pSchop","pWagn","pKant",
+            "pHindu", "pVedanta","pBudd", "pSchleier","pDeutsch","pMusik"],
+        ...dataRex.map(data =>[data.year.getFullYear(),
             data.pWille,data.pDing,data.pWahr,data.pTragische,data.pLeiden,data.pSchop,data.pWagn,data.pKant
-            ,data.pHindu,data.pVedanta,data.pBudd,data.pSchleier,data.pDeutsch,data.pMusik
-        ])
+            ,data.pHindu,data.pVedanta,data.pBudd,data.pSchleier,data.pDeutsch,data.pMusik])
     ].map(e => e.join(","))
     .join("\n");
-    
+
     var data = d3.csvParse(newCSV)
     
-    var subgroups = data.columns.slice(1)
+    //unificar data para tener año y cantidad por año
+    const sumaPorAnio  = {};
+    data.forEach(objeto => {
+        const year = objeto.year;
+        if (!sumaPorAnio[year]) {
+          sumaPorAnio[year] = 0;
+        }
+        for (const clave in objeto) {
+          if (!isNaN(objeto[clave]) && objeto[clave] !=year) {
+            sumaPorAnio[year] += parseInt(objeto[clave], 10);
+          }
+        }
+      });
 
-    var groups = d3.map(data, function(d){return(d.year)})
-    
-    //agregando X axis
-    var x = d3.scaleBand()
-      .domain(groups)
-      .range([0, width-410])
-      .padding([0.2])
+    //GRAFICO TIME DE BARRAS
+    datos = Object.entries(sumaPorAnio)
 
-    svg1.append("g")
-    .attr("transform", "translate(0," + (height+20) + ")")
-    .call(d3.axisBottom(x).tickSizeOuter(0));
-
-    //agregando Y axis
-    var y = d3.scaleLinear()
-    .domain([0, maxTotal])
-    .range([ height+20, 0 ]);
-    
-    // svg1.append("g")
-    //     .call(d3.axisLeft(y))
-    
-    //stacke data por subgrupos   
-    var stackedData = d3.stack()
-        .keys(subgroups)
-        (data)
-
-    var mouseover = function(d) {
-
-        var subgroupName = d3.select(this.parentNode).datum().key;
-
-        d3.selectAll("."+subgroupName)
-          .style("opacity", 1)
-          .attr("fill", colorScaleSub[subgroupName] )
-    };
-
-    var mouseleave = function(d) {
-
-        d3.selectAll(".myRect")
-            .style("opacity",1)
-            .attr("fill", "white" )
-    };
-
-    svg1.append("g")
-        .selectAll("g")
-        // Ingrese en la pila de datos = Key de bucle por Key = grupo por grupo
-        .data(stackedData)
-        .enter().append("g")
-            .attr("fill", "white")
-            .attr("class", function(d){ return "myRect " + d.key })
-            .selectAll("rect")
-      // ingrese una segunda vez = subgrupo de bucle por subgrupo para agregar todos los rectángulos
-            .data(function(d) { return d; })
-            .enter().append("rect")
-                .attr("x", function(d) { return x(d.data.year); })
-                .attr("y", function(d) { return y(d[1]); })
-                .attr("height", function(d) { return y(d[0]) - y(d[1]); })
-                .attr("width",x.bandwidth())
-                
-            .on("mouseover", mouseover)
-            .on("mouseleave", mouseleave)
-
-    d3.selectAll(".myRect").style("opacity", 1);
-//GRAFICO TIME DE BARRAS
-    var x1 = d3.scaleBand()
-        .domain(groups)
+    x1 = d3.scaleBand()
+        .domain(datos.map(d => d[0]))
         .range([0, width])
         .padding([0.2])
-    var y1 = d3.scaleLinear()
-        .domain([0, maxTotal])
+
+    y1 = d3.scaleLinear()
+        .domain([0, d3.max(datos, d => d[1])])
         .range([ height-300, 0 ]);
         
-
-    svgTime.append("g")
-        .attr("transform", "translate(0," + (height-300) + ")")
-        .call(d3.axisBottom(x1).tickSizeOuter(0));
-
-    svgTime.append("g")
-        .selectAll("g")
-        // Ingrese en la pila de datos = Key de bucle por Key = grupo por grupo
-        .data(stackedData)
-        .enter()
-        .append("g")
-        .attr("fill", "white")
-        .attr("class", "")
-        .selectAll("rect")
-        .data(function(d) { return d; })
-            .enter().append("rect")
-        .attr("x", function(d) { return x1(d.data.year); })
-        .attr("y", function(d) { return y1(d[1]); })
-        .attr("height", function(d) { return y1(d[0]) - y1(d[1]); })
-        .attr("width",x1.bandwidth()-30)   
-
-
+    svgTime.selectAll(".bar")
+        .data(datos)
+        .join("rect")
+        .attr("fill", "#e7e7e7")
+        .attr("class", "chartTimes")
+        .attr("x", d => x1(d[0]))
+        .attr("y", d => y1(d[1])-10)
+        .attr("height", d => (height -290 - y1(d[1])))
+        .attr("width",x1.bandwidth()-20)  
 }
 
+function fGraph(lanio,ranio){
+
+    svg1.selectAll("rect").remove();
+
+    grafico2(lanio,ranio,0,34,0);
+    grafico2(lanio,ranio,34,68,100);
+    grafico2(lanio,ranio,68,102,200);
+    grafico2(lanio,ranio,102,140,300);
+}
+
+function makeCSV(lanio,ranio,slice1,slice2) {
+
+    const filteredData = dataGroup.filter(data => {
+        const year = parseInt(data.year.split("-")[0]);
+        if(year < lanio || year > ranio) return false;
+
+        for (const key in data) {
+            if (key !== "year" && data[key] !== 0) {
+                return true; // Si encuentra un valor diferente de 0, incluir el objeto
+            }
+        }
+        return false; 
+
+    });
+
+    var makeData = filteredData.slice(slice1,slice2)
+    return newCSV1 = [
+        [ "year","pWille","pDing","pWahr","pTragische","pLeiden","pSchop","pWagn","pKant",
+            "pHindu", "pVedanta","pBudd", "pSchleier","pDeutsch","pMusik"],
+        ...makeData
+            .map(data =>[
+                data.year,
+                data.pWille,data.pDing,data.pWahr,data.pTragische,data.pLeiden,data.pSchop,data.pWagn,data.pKant
+                ,data.pHindu,data.pVedanta,data.pBudd,data.pSchleier,data.pDeutsch,data.pMusik
+            ])
+    ].map(e => e.join(","))
+    .join("\n");
+}
+
+//COLOR DE LA PALABRA SELECCIONADA
 function SelectChart(key) {
 
     d3.selectAll(".btn-"+key).style("color","#FFFFFF")
     .style("background-color",colorScaleSub[key])
     .style("border", "1px solid"+colorScaleSub[key])
 
-    
     d3.selectAll(".myRect").style("opacity", 1).attr("fill", "white")
 
     d3.selectAll("."+key)
@@ -579,7 +584,7 @@ $('#prevbtn').click(function(e){
 });
 
 
-//CREACION DEL GRAFICO LINEAL
+//CREACION DEL STREAM POR PALABRA
 function linearGraph() {
     const peopleCSV = [
         [
@@ -872,3 +877,149 @@ function linearGraph() {
     }
 }
 
+/*SLICE*/
+// d3.selectAll('input[type="range"]')
+//     .style("width",width+"px")
+
+window.onload = function(){
+    moveSlide();
+}
+
+let sliderOne = d3.select("#slider-1");
+let sliderTwo = d3.select("#slider-2");
+let displayValOne = d3.select("#range1");
+let displayValTwo = d3.select("#range2");
+
+sliderOne.on("input",function(){
+    if(parseInt(sliderTwo.node().value) - parseInt(sliderOne.node().value) <= 0){
+        sliderOne.node().value = parseInt(sliderTwo.node().value) - 1;
+    }
+    displayValOne.text(sliderOne.node().value);
+});
+
+sliderTwo.on("input",function(){
+    if(parseInt(sliderTwo.node().value) - parseInt(sliderOne.node().value) <= 0){
+        sliderTwo.node().value = parseInt(sliderOne.node().value) + 1;
+    }
+    displayValTwo.text(sliderTwo.node().value);
+});
+
+//FUNCION PARA MOVER LOS SLICES
+function moveSlide(){
+
+    let sliderBarWidth  = sliderOne.node().offsetWidth; // ancho del slider
+    let sliderValue = sliderOne.node().value; // Valor del slider
+    let sliderPosition = (sliderValue - 1869) / (1888 - 1869);
+    let thumbPosition = sliderPosition * (sliderBarWidth - 1)-(sliderValue-1869)*3.1;
+
+    let sliderBarWidth2  = sliderTwo.node().offsetWidth; // ancho del slider
+    let sliderValue2 = sliderTwo.node().value; // Valor del slider
+    let sliderPosition2 = (sliderValue2 - 1869) / (1888 - 1869);
+    let thumbPosition2 = sliderPosition2 * (sliderBarWidth2 - 1) -(sliderValue2-1869)*3.3;
+
+    if(parseInt(sliderTwo.node().value) - parseInt(sliderOne.node().value) > 0){
+        displayValOne.style("left",thumbPosition+"px").style("padding-left","8px")
+        displayValTwo.style("left",thumbPosition2+"px").style("padding-left","8px")
+        //Pintamos las barras seleccionadas en el rango
+        d3.selectAll(".chartTimes").classed("selected", (d) => {
+            return d[0] >= sliderValue && d[0]<=sliderValue2;        
+        })
+    }
+    //para actualizar el grafico
+    if (sliderValue < sliderValue2 && sliderValue2 > sliderValue){
+        fGraph(sliderValue,sliderValue2);
+    }
+}
+
+var child_brush;
+var brush,brushg;
+
+function makeBrush(val1,val2) {
+    if(brush){
+        if (val1 === 1){
+            brush.move(brushg,[60,(50*(val2)+60+(val2-1)*3)])
+        }
+        else{
+            brush.move(brushg,[(50*(val1-1)+60+(val1-1)*3),(50*(val2)+60+(val2-1)*3)])
+        }
+    }
+    if(!brush){
+        brush = d3.brushX()  
+        .extent([[60,0],[(width + margin.left + margin.right-40),75]])
+
+        brushg = d3.select("#timechart").append("g").attr("class", "parent")
+              .call(brush);
+        brush.move(brushg,[378,693])
+    }
+    
+    const selection = d3.brushSelection(brushg.node());
+    const xScale = x1; // X1 es la escala del grafico
+    
+    //pintamos las barras seleccionadas
+    // d3.selectAll(".chartTimes").classed("selected", (d) => {
+    //     return selection &&   xScale(d[0])+50 >= selection[0]  && xScale(d[0])+50 <= selection[1];        
+    // })
+
+    d3.select("#timechart").select('.parent .overlay').remove();
+    d3.select("#timechart").select('.parent .move').remove();
+}
+
+function grafico2(lanio,ranio,lslice,rslice,high){
+
+    var newCSV1 = makeCSV(lanio,ranio,lslice,rslice)
+    var data2 = d3.csvParse(newCSV1)
+    var groups2 = d3.map(data2, function(d){return(d.year)})
+    var subgroups = data2.columns.slice(1)
+
+    //agregando X axis
+    var x = d3.scaleBand()
+      .domain(groups2)
+      .range([0, width])
+      .padding([0.2])
+
+    //agregando Y axis
+    var y = d3.scaleLinear()
+        .domain([0, maxTotal])
+        .range([ 0, height+20 ]);
+    
+    //stacke data por subgrupos   
+    var stackedData = d3.stack()
+        .keys(subgroups)
+        (data2)
+
+    var mouseover = function(d) {
+        var subgroupName = d3.select(this.parentNode).datum().key;
+        d3.selectAll("."+subgroupName)
+          .style("opacity", 1)
+          .attr("fill", colorScaleSub[subgroupName] )
+    };
+
+    var mouseleave = function(d) {
+        d3.selectAll(".myRect")
+            .style("opacity",1)
+            .attr("fill", "white" )
+    };
+
+    svg1.append("g")
+        .selectAll("g")
+        .data(stackedData)
+        .enter()
+        .append("g")
+        .attr("fill", "white")
+        .attr("class", function(d){ return "myRect " + d.key })
+        .selectAll("rect")
+        .data(function(d) { return d; })
+        .enter()
+        .append("rect")
+        .attr("x", function(d,i) { return i*18; })
+        .attr("y", function(d) { return y(d[0])+high; })
+        .attr("height", function(d) {
+
+            return y(d[1]) - y(d[0]); 
+        })
+        .attr("width",14)  
+        .on("mouseover", mouseover)
+        .on("mouseleave", mouseleave)
+
+    d3.selectAll(".myRect").style("opacity", 1);
+}
